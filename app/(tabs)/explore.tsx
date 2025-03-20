@@ -1,109 +1,266 @@
-import { StyleSheet, Image, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, TouchableOpacity, FlatList, SafeAreaView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StatusBar } from 'expo-status-bar';
+import { useColorScheme } from '../../hooks/useColorScheme';
+import { useThemeColor } from '../../hooks/useThemeColor';
+import Colors from '../../constants/Colors';
+import { ThemedView } from '../../components/ThemedView';
+import { ThemedText } from '../../components/ThemedText';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-
-export default function TabTwoScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
+export default function HistoryScreen() {
+  const router = useRouter();
+  const colorScheme = useColorScheme();
+  const backgroundColor = useThemeColor({ light: Colors.light.background, dark: Colors.dark.background });
+  const cardColor = useThemeColor({ light: Colors.light.card, dark: Colors.dark.card });
+  const subtextColor = useThemeColor({ light: Colors.light.subtext, dark: Colors.dark.subtext });
+  
+  const [historyItems, setHistoryItems] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  useEffect(() => {
+    checkLoginStatus();
+    loadHistory();
+    
+    const unsubscribe = router.addListener('focus', () => {
+      loadHistory();
+    });
+    
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
+  
+  const checkLoginStatus = async () => {
+    try {
+      const userToken = await AsyncStorage.getItem('userToken');
+      if (userToken) {
+        setIsLoggedIn(true);
+      }
+    } catch (error) {
+      console.log('Error checking login status:', error);
+    }
+  };
+  
+  const loadHistory = async () => {
+    try {
+      const savedHistory = await AsyncStorage.getItem('analysisHistory');
+      if (savedHistory) {
+        setHistoryItems(JSON.parse(savedHistory));
+      }
+    } catch (error) {
+      console.log('Error loading history:', error);
+    }
+  };
+  
+  const getEmotionIcon = (emotion) => {
+    switch (emotion?.toLowerCase()) {
+      case 'happy':
+        return 'happy-outline';
+      case 'sad':
+        return 'sad-outline';
+      case 'angry':
+        return 'flame-outline';
+      case 'fear':
+        return 'warning-outline';
+      default:
+        return 'ellipsis-horizontal-outline';
+    }
+  };
+  
+  const getEmotionColor = (emotion) => {
+    switch (emotion?.toLowerCase()) {
+      case 'happy':
+        return '#22C55E';
+      case 'sad':
+        return '#3B82F6';
+      case 'angry':
+        return '#EF4444';
+      case 'fear':
+        return '#F59E0B';
+      default:
+        return '#9CA3AF';
+    }
+  };
+  
+  const renderHistoryItem = ({ item }) => (
+    <TouchableOpacity 
+      style={[styles.historyItem, { backgroundColor: cardColor }]}
+      onPress={() => router.push({
+        pathname: '/result',
+        params: { id: item.id }
+      })}
+    >
+      <View style={[styles.emotionIcon, { backgroundColor: getEmotionColor(item.dominantEmotion) + '20' }]}>
+        <Ionicons 
+          name={getEmotionIcon(item.dominantEmotion)} 
+          size={24} 
+          color={getEmotionColor(item.dominantEmotion)} 
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
+      </View>
+      
+      <View style={styles.historyItemContent}>
+        <ThemedText style={styles.historyItemTitle} numberOfLines={1}>
+          {item.title || 'Voice Analysis'}
         </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
+        <ThemedText lightColor={Colors.light.subtext} darkColor={Colors.dark.subtext} style={styles.historyItemDate}>
+          {new Date(item.timestamp).toLocaleString()}
         </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
+      </View>
+      
+      <View style={styles.emotionTag}>
+        <ThemedText style={[styles.emotionTagText, { color: getEmotionColor(item.dominantEmotion) }]}>
+          {item.dominantEmotion || 'Unknown'}
         </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
+      </View>
+      
+      <Ionicons name="chevron-forward" size={20} color={subtextColor} />
+    </TouchableOpacity>
+  );
+  
+  const EmptyListComponent = () => (
+    <ThemedView style={styles.emptyContainer}>
+      <Ionicons name="time" size={60} color={subtextColor} />
+      <ThemedText style={styles.emptyTitle}>No history yet</ThemedText>
+      <ThemedText lightColor={Colors.light.subtext} darkColor={Colors.dark.subtext} style={styles.emptyText}>
+        {isLoggedIn 
+          ? "Your voice analysis history will appear here" 
+          : "Please login to view your history"}
+      </ThemedText>
+      
+      {!isLoggedIn && (
+        <TouchableOpacity 
+          style={[styles.loginButton, { backgroundColor: Colors[colorScheme].primaryButton }]}
+          onPress={() => router.push('/login')}
+        >
+          <ThemedText style={styles.loginButtonText} lightColor="#FFFFFF" darkColor="#FFFFFF">
+            Login
           </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
+        </TouchableOpacity>
+      )}
+    </ThemedView>
+  );
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor }]}>
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+      
+      <View style={styles.header}>
+        <ThemedText style={styles.title}>Analysis History</ThemedText>
+        
+        {isLoggedIn && historyItems.length > 0 && (
+          <TouchableOpacity 
+            style={styles.clearButton}
+            onPress={async () => {
+              await AsyncStorage.removeItem('analysisHistory');
+              setHistoryItems([]);
+            }}
+          >
+            <ThemedText lightColor={Colors.light.error} darkColor={Colors.dark.error}>
+              Clear
             </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+          </TouchableOpacity>
+        )}
+      </View>
+      
+      <FlatList
+        data={historyItems}
+        renderItem={renderHistoryItem}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={EmptyListComponent}
+      />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
   },
-  titleContainer: {
+  header: {
     flexDirection: 'row',
-    gap: 8,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  clearButton: {
+    padding: 8,
+  },
+  listContent: {
+    padding: 20,
+    paddingTop: 10,
+    flexGrow: 1,
+  },
+  historyItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+  emotionIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  historyItemContent: {
+    flex: 1,
+  },
+  historyItemTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  historyItemDate: {
+    fontSize: 12,
+    marginTop: 4,
+  },
+  emotionTag: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+    marginRight: 8,
+  },
+  emotionTagText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptyText: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  loginButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+  },
+  loginButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
