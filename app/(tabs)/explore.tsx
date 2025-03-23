@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, TouchableOpacity, FlatList, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from '../../hooks/useColorScheme';
@@ -23,15 +23,14 @@ export default function HistoryScreen() {
   useEffect(() => {
     checkLoginStatus();
     loadHistory();
-    
-    const unsubscribe = router.addListener('focus', () => {
-      loadHistory();
-    });
-    
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
   }, []);
+  
+  // Use useFocusEffect instead of router.addListener
+  useFocusEffect(
+    React.useCallback(() => {
+      loadHistory();
+    }, [])
+  );
   
   const checkLoginStatus = async () => {
     try {
