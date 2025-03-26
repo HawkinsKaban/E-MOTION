@@ -37,6 +37,7 @@ export default function AppLayout() {
         <Stack.Screen name="record" options={{ headerShown: false }} />
         <Stack.Screen name="upload" options={{ headerShown: false }} />
         <Stack.Screen name="analysis" options={{ headerShown: false }} />
+        <Stack.Screen name="emotionAnimation" options={{ headerShown: false }} />
         <Stack.Screen name="result" options={{ headerShown: false }} />
         <Stack.Screen name="profile" options={{ headerShown: false }} />
         <Stack.Screen name="editProfile" options={{ headerShown: false }} />

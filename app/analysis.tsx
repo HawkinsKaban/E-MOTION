@@ -86,14 +86,17 @@ export default function AnalysisScreen() {
       setProgress(1);
       
       // Generate mock analysis results
-      const emotions = ['Happy', 'Sad', 'Angry', 'Fear'];
+      // Updated to include all 6 emotions: Happy, Sad, Angry, Fear, Disgust, Shock
+      const emotions = ['Happy', 'Sad', 'Angry', 'Fear', 'Disgust', 'Shock'];
       const dominantEmotion = emotions[Math.floor(Math.random() * emotions.length)];
       
       const emotionData = {
         'Happy': Math.random() * 100,
         'Sad': Math.random() * 100,
         'Angry': Math.random() * 100,
-        'Fear': Math.random() * 100
+        'Fear': Math.random() * 100,
+        'Disgust': Math.random() * 100,
+        'Shock': Math.random() * 100
       };
       
       // Normalize to sum to 100%
@@ -144,10 +147,10 @@ export default function AnalysisScreen() {
         console.error('Error saving analysis to history', error);
       }
       
-      // Navigate to results
+      // Navigate to emotion animation screen
       await new Promise(resolve => setTimeout(resolve, 1000));
       router.replace({
-        pathname: '/result',
+        pathname: '/emotionAnimation',
         params: { id: analysisResult.id }
       });
     };

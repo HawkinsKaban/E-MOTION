@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, TouchableOpacity, FlatList, SafeAreaView } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, FlatList, SafeAreaView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,6 +9,16 @@ import { useThemeColor } from '../../hooks/useThemeColor';
 import Colors from '../../constants/Colors';
 import { ThemedView } from '../../components/ThemedView';
 import { ThemedText } from '../../components/ThemedText';
+
+// Import emotion images
+const EmotionImages = {
+  'Happy': require('../../assets/images/emotion/happy.png'),
+  'Sad': require('../../assets/images/emotion/sad.png'),
+  'Angry': require('../../assets/images/emotion/anger.png'),
+  'Fear': require('../../assets/images/emotion/fear.png'),
+  'Disgust': require('../../assets/images/emotion/disgust.png'),
+  'Shock': require('../../assets/images/emotion/shock.png')
+};
 
 export default function HistoryScreen() {
   const router = useRouter();
@@ -54,21 +64,6 @@ export default function HistoryScreen() {
     }
   };
   
-  const getEmotionIcon = (emotion) => {
-    switch (emotion?.toLowerCase()) {
-      case 'happy':
-        return 'happy-outline';
-      case 'sad':
-        return 'sad-outline';
-      case 'angry':
-        return 'flame-outline';
-      case 'fear':
-        return 'warning-outline';
-      default:
-        return 'ellipsis-horizontal-outline';
-    }
-  };
-  
   const getEmotionColor = (emotion) => {
     switch (emotion?.toLowerCase()) {
       case 'happy':
@@ -79,6 +74,10 @@ export default function HistoryScreen() {
         return '#EF4444';
       case 'fear':
         return '#F59E0B';
+      case 'disgust':
+        return '#8B5CF6';
+      case 'shock':
+        return '#EC4899';
       default:
         return '#9CA3AF';
     }
@@ -93,10 +92,11 @@ export default function HistoryScreen() {
       })}
     >
       <View style={[styles.emotionIcon, { backgroundColor: getEmotionColor(item.dominantEmotion) + '20' }]}>
-        <Ionicons 
-          name={getEmotionIcon(item.dominantEmotion)} 
-          size={24} 
-          color={getEmotionColor(item.dominantEmotion)} 
+        {/* Use the emotion image instead of an icon */}
+        <Image 
+          source={EmotionImages[item.dominantEmotion] || EmotionImages.Happy}
+          style={styles.emotionIconImage}
+          resizeMode="contain"
         />
       </View>
       
@@ -214,6 +214,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
+    overflow: 'hidden',
+  },
+  emotionIconImage: {
+    width: 36,
+    height: 36,
   },
   historyItemContent: {
     flex: 1,

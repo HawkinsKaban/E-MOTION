@@ -6,7 +6,8 @@ import {
   ScrollView, 
   Share,
   Alert,
-  Dimensions
+  Dimensions,
+  Image
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -22,6 +23,17 @@ import { ThemedText } from '../components/ThemedText';
 
 const { width } = Dimensions.get('window');
 
+// Image mapping for the 6 emotions
+const EmotionImages = {
+  'Happy': require('../assets/images/emotion/happy.png'),
+  'Sad': require('../assets/images/emotion/sad.png'),
+  'Angry': require('../assets/images/emotion/anger.png'),
+  'Fear': require('../assets/images/emotion/fear.png'),
+  'Disgust': require('../assets/images/emotion/disgust.png'),
+  'Shock': require('../assets/images/emotion/shock.png')
+};
+
+// Emotion info object - updated for all 6 emotions
 const EmotionInfo = {
   'Happy': {
     description: 'Your voice indicates happiness and positive emotions. Your tone is upbeat and energetic, showing good mood and enthusiasm.',
@@ -42,6 +54,16 @@ const EmotionInfo = {
     description: 'Your voice indicates anxiety or fear. The pattern shows tension and unsteadiness in pitch, possibly indicating worry or nervousness.',
     icon: 'warning-outline',
     color: '#F59E0B'
+  },
+  'Disgust': {
+    description: 'Your voice suggests feelings of disgust or revulsion. The pattern shows a distinctive tone often associated with avoidance or rejection responses.',
+    icon: 'remove-circle-outline',
+    color: '#8B5CF6'
+  },
+  'Shock': {
+    description: 'Your voice indicates surprise or shock. The pattern shows sudden changes in pitch and intensity, characteristic of an unexpected reaction.',
+    icon: 'flash-outline',
+    color: '#EC4899'
   }
 };
 
@@ -144,6 +166,10 @@ export default function ResultScreen() {
       </SafeAreaView>
     );
   }
+
+  // Get the emotion image based on dominant emotion
+  const emotionImage = EmotionImages[analysisData.dominantEmotion] || 
+                      require('../assets/images/emotion/happy.png'); // Default fallback
   
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
@@ -202,6 +228,14 @@ export default function ResultScreen() {
             </ThemedText>
           </View>
           
+          <View style={styles.emotionVisualContainer}>
+            <Image
+              source={emotionImage}
+              style={styles.emotionImage}
+              resizeMode="contain"
+            />
+          </View>
+          
           <View 
             style={[
               styles.dominantEmotionContainer, 
@@ -252,47 +286,6 @@ export default function ResultScreen() {
               </ThemedText>
             </TouchableOpacity>
           )}
-        </ThemedView>
-        
-        <ThemedView 
-          style={styles.chartCard}
-          lightColor={Colors.light.card} 
-          darkColor={Colors.dark.card}
-        >
-          <ThemedText style={styles.chartTitle}>
-            Emotion Distribution
-          </ThemedText>
-          
-          {Object.entries(analysisData.emotionData).map(([emotion, percentage]) => (
-            <View key={emotion} style={styles.emotionBarContainer}>
-              <View style={styles.emotionLabelContainer}>
-                <Ionicons 
-                  name={EmotionInfo[emotion]?.icon} 
-                  size={20} 
-                  color={EmotionInfo[emotion]?.color} 
-                  style={styles.emotionBarIcon}
-                />
-                <ThemedText style={styles.emotionBarLabel}>
-                  {emotion}
-                </ThemedText>
-              </View>
-              
-              <View style={styles.barContainer}>
-                <View 
-                  style={[
-                    styles.emotionBar, 
-                    { 
-                      width: `${percentage}%`,
-                      backgroundColor: EmotionInfo[emotion]?.color
-                    }
-                  ]}
-                />
-                <ThemedText style={styles.percentageText}>
-                  {percentage.toFixed(1)}%
-                </ThemedText>
-              </View>
-            </View>
-          ))}
         </ThemedView>
         
         <ThemedView 
@@ -393,6 +386,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 4,
   },
+  emotionVisualContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  emotionImage: {
+    width: 120,
+    height: 120,
+  },
   dominantEmotionContainer: {
     flexDirection: 'row',
     borderRadius: 12,
@@ -427,49 +428,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     marginLeft: 8,
-  },
-  chartCard: {
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
-  },
-  chartTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 16,
-  },
-  emotionBarContainer: {
-    marginBottom: 16,
-  },
-  emotionLabelContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  emotionBarIcon: {
-    marginRight: 8,
-  },
-  emotionBarLabel: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  barContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 24,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  emotionBar: {
-    height: '100%',
-    borderRadius: 12,
-  },
-  percentageText: {
-    position: 'absolute',
-    right: 10,
-    fontSize: 14,
-    fontWeight: 'bold',
   },
   infoCard: {
     borderRadius: 16,
