@@ -6,9 +6,8 @@ import { ThemedText } from './ThemedText';
 import { useTheme, THEME_MODE } from '../context/ThemeContext';
 import { useColorScheme } from '../hooks/useColorScheme';
 
-/*
- * Component to toggle between Light/Dark/System theme options
- * This is an optional component that can be added to the profile screen
+/**
+ * Theme toggle component with Light/Dark/System options
  */
 export function ThemeSystemToggle() {
   const { themeMode, setThemeMode } = useTheme();
@@ -19,27 +18,39 @@ export function ThemeSystemToggle() {
       <ThemedText style={styles.title}>Tema Aplikasi</ThemedText>
       
       <View style={styles.optionsContainer}>
+        {/* Light Theme Option */}
         <ThemeOption 
           icon="sunny" 
           label="Terang" 
           isSelected={themeMode === THEME_MODE.LIGHT}
-          onSelect={() => setThemeMode(THEME_MODE.LIGHT)}
+          onSelect={() => {
+            console.log('Setting theme to LIGHT');
+            setThemeMode(THEME_MODE.LIGHT);
+          }}
           colorScheme={colorScheme}
         />
         
+        {/* Dark Theme Option */}
         <ThemeOption 
           icon="moon" 
           label="Gelap" 
           isSelected={themeMode === THEME_MODE.DARK}
-          onSelect={() => setThemeMode(THEME_MODE.DARK)}
+          onSelect={() => {
+            console.log('Setting theme to DARK');
+            setThemeMode(THEME_MODE.DARK);
+          }}
           colorScheme={colorScheme}
         />
         
+        {/* System Theme Option */}
         <ThemeOption 
           icon="phone-portrait" 
           label="Sistem" 
           isSelected={themeMode === THEME_MODE.SYSTEM}
-          onSelect={() => setThemeMode(THEME_MODE.SYSTEM)}
+          onSelect={() => {
+            console.log('Setting theme to SYSTEM');
+            setThemeMode(THEME_MODE.SYSTEM);
+          }}
           colorScheme={colorScheme}
         />
       </View>

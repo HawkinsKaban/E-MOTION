@@ -1,7 +1,20 @@
 import { useContext } from 'react';
-import { ThemeContext } from '../App';
+import { ThemeContext } from '../context/ThemeContext';
 
-// Hook sederhana untuk akses tema dari context
+// Hook for accessing theme from context
 export function useTheme() {
-  return useContext(ThemeContext);
+  const context = useContext(ThemeContext);
+  
+  if (context === undefined) {
+    console.error('useTheme must be used within a ThemeProvider');
+    // Return a default value to prevent crashes
+    return { 
+      theme: 'light', 
+      themeMode: 'system',
+      setThemeMode: () => {},
+      toggleTheme: () => {}
+    };
+  }
+  
+  return context;
 }

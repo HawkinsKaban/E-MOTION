@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../hooks/useTheme';
 
 /**
  * Enhanced useColorScheme hook for web
@@ -8,23 +8,16 @@ import { useTheme } from '../context/ThemeContext';
  * - Handles hydration properly
  */
 export function useColorScheme() {
-  const [hasHydrated, setHasHydrated] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const { theme } = useTheme();
   
-  // For initial SSR, provide a default theme
+  // For initial SSR, use a default theme
   // After hydration, use the actual theme from context
   useEffect(() => {
-    setHasHydrated(true);
+    setIsClient(true);
   }, []);
   
-  // Debug for web troubleshooting
-  useEffect(() => {
-    if (hasHydrated) {
-      console.log('Web useColorScheme theme:', theme);
-    }
-  }, [hasHydrated, theme]);
-  
-  // During SSR, return light theme to avoid hydration mismatch
+  // During first render (SSR), return light theme to avoid hydration mismatch
   // After hydration, return the actual theme from context
-  return hasHydrated ? theme : 'light';
+  return isClient ? theme : 'light';
 }
