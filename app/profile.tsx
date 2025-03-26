@@ -17,7 +17,7 @@ import { useThemeColor } from '../hooks/useThemeColor';
 import Colors from '../constants/Colors';
 import { ThemedView } from '../components/ThemedView';
 import { ThemedText } from '../components/ThemedText';
-import { ThemeSwitch } from '../components/ThemeSwitch';
+import { DirectThemeSwitcher } from '../components/DirectThemeSwitcher';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -292,13 +292,8 @@ export default function ProfileScreen() {
             Settings
           </ThemedText>
           
-          {/* Theme Switch */}
-          <ThemeSwitch 
-            containerStyle={[
-              styles.settingItem, 
-              { borderBottomColor: 'rgba(0, 0, 0, 0.05)' }
-            ]}
-          />
+          {/* Direct Theme Switcher */}
+          <DirectThemeSwitcher />
           
           <View style={styles.settingItem}>
             <View style={styles.settingLabelContainer}>

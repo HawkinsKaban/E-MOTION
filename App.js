@@ -1,30 +1,37 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { StatusBar } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Platform } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import AppNavigator from './src/navigation/AppNavigator';
-import { ThemeProvider, useThemeContext } from './context/ThemeContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Slot } from 'expo-router';
 
-// Component that uses the theme context to set the status bar
-function ThemedStatusBar() {
-  const { colorScheme } = useThemeContext();
-  return (
-    <StatusBar 
-      barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}
-      backgroundColor={colorScheme === 'dark' ? '#121212' : '#FFFFFF'} 
-    />
-  );
-}
+// Kita gunakan ini untuk menyimpan tema
+const THEME_STORAGE_KEY = 'app_theme';
 
+// Buat tema default (berdasarkan preferensi sistem atau light)
 export default function App() {
+  const [theme, setTheme] = useState('light');
+
+  // Muat tema yang tersimpan saat aplikasi dimulai
+  useEffect(() => {
+    const loadTheme = async () => {
+      try {
+        const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
+        if (savedTheme) {
+          setTheme(savedTheme);
+        }
+      } catch (error) {
+        console.error('Error loading theme:', error);
+      }
+    };
+
+    loadTheme();
+  }, []);
+
   return (
-    <ThemeProvider>
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <ThemedStatusBar />
-          <AppNavigator />
-        </NavigationContainer>
-      </SafeAreaProvider>
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
+      <Slot />
+    </SafeAreaProvider>
   );
 }
