@@ -5,7 +5,6 @@ import { useColorScheme } from '../../hooks/useColorScheme';
 import Colors from '../../constants/Colors';
 import { TabBarBackground } from '../../components/ui/TabBarBackground';
 import { HapticTab } from '../../components/HapticTab';
-import { LogoutButton } from '../../components/LogoutButton'; // Tambahkan import ini
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -21,21 +20,7 @@ export default function TabLayout() {
           shadowOpacity: 0,
         },
         tabBarBackground: () => <TabBarBackground />,
-        headerShown: true, // Ubah menjadi true untuk menampilkan header
-        headerRight: () => (
-          <LogoutButton 
-            style={{ 
-              paddingVertical: 6, 
-              paddingHorizontal: 12, 
-              marginRight: 10,
-              borderWidth: 0,
-              backgroundColor: 'transparent' 
-            }} 
-            textStyle={{ fontSize: 14 }}
-            showText={false}
-            iconSize={24}
-          />
-        )
+        headerShown: false, // Hide the header for a cleaner look
       }}
     >
       <Tabs.Screen
