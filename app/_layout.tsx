@@ -28,7 +28,9 @@ export default function AppLayout() {
       <Stack.Screen name="analysis" options={{ headerShown: false }} />
       <Stack.Screen name="result" options={{ headerShown: false }} />
       <Stack.Screen name="profile" options={{ headerShown: false }} />
-      <Stack.Screen name="not-found" options={{ headerShown: true, title: 'Oops!' }} />
+      
+      {/* Make sure this matches your file name */}
+      <Stack.Screen name="+not-found" options={{ headerShown: true, title: 'Oops!' }} />
     </Stack>
   );
 }

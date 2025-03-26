@@ -4,6 +4,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Slot } from 'expo-router';
 import { useColorScheme } from './hooks/useColorScheme';
 import themeManager from './utils/themeManager';
+import { Platform } from 'react-native';
+
+// Check if we're in a browser environment
+const isBrowser = () => typeof window !== 'undefined' && window !== null;
 
 // Simple App component
 export default function App() {
@@ -11,7 +15,9 @@ export default function App() {
   
   // Initialize theme system on startup
   useEffect(() => {
-    themeManager.initialize();
+    if (Platform.OS !== 'web' || isBrowser()) {
+      themeManager.initialize();
+    }
   }, []);
   
   return (

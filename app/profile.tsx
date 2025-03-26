@@ -6,7 +6,8 @@ import {
   Switch,
   Alert,
   ScrollView,
-  SafeAreaView
+  SafeAreaView,
+  ActivityIndicator
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -17,7 +18,7 @@ import { useThemeColor } from '../hooks/useThemeColor';
 import Colors from '../constants/Colors';
 import { ThemedView } from '../components/ThemedView';
 import { ThemedText } from '../components/ThemedText';
-import { ThemeSystemToggle } from '../components/ThemeSystemToggle'; // Import ThemeSystemToggle
+import { ThemeSystemToggle } from '../components/ThemeSystemToggle';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -33,6 +34,7 @@ export default function ProfileScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [dataSharing, setDataSharing] = useState(false);
   const [totalAnalyses, setTotalAnalyses] = useState(0);
+  const [isLogoutLoading, setIsLogoutLoading] = useState(false);
   
   useEffect(() => {
     checkLoginStatus();
@@ -101,6 +103,7 @@ export default function ProfileScreen() {
     }
   };
   
+  // Fungsi logout khusus untuk halaman profil
   const handleLogout = async () => {
     Alert.alert(
       'Logout',
@@ -114,11 +117,28 @@ export default function ProfileScreen() {
           text: 'Logout',
           onPress: async () => {
             try {
+              // Aktifkan indikator loading
+              setIsLogoutLoading(true);
+              
+              // Hapus data pengguna dari AsyncStorage
               await AsyncStorage.removeItem('userToken');
               await AsyncStorage.removeItem('username');
-              router.replace('/');
+              
+              // Reset state aplikasi
+              setIsLoggedIn(false);
+              setUsername('');
+              setEmail('');
+              
+              // Tunggu sebentar agar animasi loading terlihat
+              setTimeout(() => {
+                setIsLogoutLoading(false);
+                // Navigasi ke halaman beranda
+                router.replace('/');
+              }, 500);
             } catch (error) {
               console.log('Error during logout:', error);
+              setIsLogoutLoading(false);
+              Alert.alert('Error', 'Failed to log out. Please try again.');
             }
           }
         }
@@ -229,6 +249,7 @@ export default function ProfileScreen() {
                 </View>
               </View>
               
+              {/* Tombol Logout */}
               <TouchableOpacity
                 style={[
                   styles.logoutButton,
@@ -238,19 +259,26 @@ export default function ProfileScreen() {
                   }
                 ]}
                 onPress={handleLogout}
+                disabled={isLogoutLoading}
               >
-                <Ionicons 
-                  name="log-out-outline" 
-                  size={20} 
-                  color={Colors[colorScheme].error} 
-                />
-                <ThemedText 
-                  style={styles.logoutButtonText}
-                  lightColor={Colors[colorScheme].error} 
-                  darkColor={Colors[colorScheme].error}
-                >
-                  Logout
-                </ThemedText>
+                {isLogoutLoading ? (
+                  <ActivityIndicator size="small" color={Colors[colorScheme].error} />
+                ) : (
+                  <>
+                    <Ionicons 
+                      name="log-out-outline" 
+                      size={20} 
+                      color={Colors[colorScheme].error} 
+                    />
+                    <ThemedText 
+                      style={styles.logoutButtonText}
+                      lightColor={Colors[colorScheme].error} 
+                      darkColor={Colors[colorScheme].error}
+                    >
+                      Logout
+                    </ThemedText>
+                  </>
+                )}
               </TouchableOpacity>
             </View>
           ) : (

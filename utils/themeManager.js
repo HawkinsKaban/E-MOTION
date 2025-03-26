@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import storageHelper from './storageHelper';
 
 // Constants
 const THEME_KEY = 'app_theme';
@@ -8,6 +9,9 @@ export const THEMES = {
   DARK: 'dark',
   SYSTEM: 'system'
 };
+
+// Check if we're in a browser environment
+const isBrowser = () => typeof window !== 'undefined' && window !== null;
 
 // Listeners for theme changes
 const listeners = new Set();
@@ -19,7 +23,7 @@ let isInitialized = false;
 
 // Get system theme preference
 const getSystemTheme = () => {
-  if (Platform.OS === 'web' && typeof window !== 'undefined' && window.matchMedia) {
+  if (Platform.OS === 'web' && isBrowser() && window.matchMedia) {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 
       THEMES.DARK : THEMES.LIGHT;
   }
@@ -28,7 +32,7 @@ const getSystemTheme = () => {
 
 // Apply theme to DOM (web only)
 const applyThemeToDOM = (theme) => {
-  if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+  if (Platform.OS !== 'web' || !isBrowser()) return;
   
   console.log('[ThemeManager] Applying theme to DOM:', theme);
   
@@ -90,12 +94,11 @@ const initialize = async () => {
     // Try to load saved theme
     let savedTheme;
     
-    if (Platform.OS === 'web' && typeof window !== 'undefined' && window.localStorage) {
-      savedTheme = window.localStorage.getItem(THEME_KEY);
-      console.log('[ThemeManager] Loaded theme from localStorage:', savedTheme);
-    } else {
-      savedTheme = await AsyncStorage.getItem(THEME_KEY);
-      console.log('[ThemeManager] Loaded theme from AsyncStorage:', savedTheme);
+    try {
+      savedTheme = await storageHelper.getItem(THEME_KEY);
+      console.log('[ThemeManager] Loaded theme:', savedTheme);
+    } catch (error) {
+      console.log('[ThemeManager] Error loading theme:', error);
     }
     
     // Apply saved theme if valid
@@ -112,7 +115,7 @@ const initialize = async () => {
     }
     
     // Apply theme to DOM for web
-    if (Platform.OS === 'web') {
+    if (Platform.OS === 'web' && isBrowser()) {
       applyThemeToDOM(currentTheme);
       setupSystemThemeListener();
     }
@@ -128,7 +131,7 @@ const initialize = async () => {
 
 // Set up listener for system theme changes
 const setupSystemThemeListener = () => {
-  if (Platform.OS !== 'web' || typeof window === 'undefined' || !window.matchMedia) return;
+  if (Platform.OS !== 'web' || !isBrowser() || !window.matchMedia) return;
   
   console.log('[ThemeManager] Setting up system theme listener');
   
@@ -155,14 +158,7 @@ const setupSystemThemeListener = () => {
 const saveThemePreference = async (themeMode) => {
   try {
     console.log('[ThemeManager] Saving theme preference:', themeMode);
-    
-    // Save to localStorage for web
-    if (Platform.OS === 'web' && typeof window !== 'undefined' && window.localStorage) {
-      window.localStorage.setItem(THEME_KEY, themeMode);
-    }
-    
-    // Save to AsyncStorage for all platforms
-    await AsyncStorage.setItem(THEME_KEY, themeMode);
+    await storageHelper.setItem(THEME_KEY, themeMode);
   } catch (error) {
     console.error('[ThemeManager] Error saving theme preference:', error);
   }
@@ -186,7 +182,7 @@ const setThemeMode = async (themeMode) => {
   }
   
   // Apply theme to DOM for web
-  if (Platform.OS === 'web') {
+  if (Platform.OS === 'web' && isBrowser()) {
     applyThemeToDOM(currentTheme);
   }
   
@@ -214,8 +210,10 @@ const toggleTheme = async () => {
 const getTheme = () => {
   if (!isInitialized) {
     // If not initialized yet, trigger initialization
-    initialize();
-    return getSystemTheme(); // Return best guess for initial render
+    if (Platform.OS !== 'web' || isBrowser()) {
+      initialize();
+    }
+    return THEMES.LIGHT; // Return a safe default for initial render
   }
   return currentTheme;
 };
@@ -223,7 +221,9 @@ const getTheme = () => {
 // Get current theme mode
 const getThemeMode = () => {
   if (!isInitialized) {
-    initialize();
+    if (Platform.OS !== 'web' || isBrowser()) {
+      initialize();
+    }
     return THEMES.SYSTEM; // Default to system if not initialized
   }
   return currentThemeMode;
@@ -234,7 +234,7 @@ const addThemeListener = (listener) => {
   listeners.add(listener);
   
   // Ensure initialization
-  if (!isInitialized) {
+  if (!isInitialized && (Platform.OS !== 'web' || isBrowser())) {
     initialize();
   }
   
@@ -244,8 +244,11 @@ const addThemeListener = (listener) => {
   };
 };
 
-// Start initialization immediately
-initialize();
+// Start initialization immediately, but only if we're in a browser environment
+// for web or in a native environment
+if (Platform.OS !== 'web' || isBrowser()) {
+  initialize();
+}
 
 // Export the theme manager functions
 export default {
