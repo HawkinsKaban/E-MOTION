@@ -1,58 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { View, Switch, StyleSheet, Platform } from 'react-native';
+import { View, Switch, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useColorScheme } from 'react-native';
 import Colors from '../constants/Colors';
 import { ThemedText } from './ThemedText';
-import * as Updates from 'expo-updates';
-
-const THEME_STORAGE_KEY = 'app_theme';
+import { useTheme } from '../context/ThemeContext';
 
 export function DirectThemeSwitcher() {
-  const systemColorScheme = useColorScheme();
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [isDarkMode, setIsDarkMode] = useState(theme === 'dark');
   
-  // Load current theme when component mounts
+  // Update the switch state when theme changes
   useEffect(() => {
-    const loadTheme = async () => {
-      try {
-        const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-        setIsDarkMode(savedTheme === 'dark');
-      } catch (error) {
-        console.log('Error loading theme preference:', error);
-        // Default to system preference if nothing saved
-        setIsDarkMode(systemColorScheme === 'dark');
-      }
-    };
-    
-    loadTheme();
-  }, [systemColorScheme]);
+    setIsDarkMode(theme === 'dark');
+  }, [theme]);
   
-  const toggleTheme = async (value) => {
-    setIsDarkMode(value);
+  // Toggle theme function
+  const toggleTheme = (value) => {
     const newTheme = value ? 'dark' : 'light';
-    
-    try {
-      // Save the new theme preference
-      await AsyncStorage.setItem(THEME_STORAGE_KEY, newTheme);
-      
-      // Force reload the app to apply the theme
-      if (Platform.OS === 'web') {
-        window.location.reload();
-      } else {
-        try {
-          await Updates.reloadAsync();
-        } catch (error) {
-          console.log('Error reloading app:', error);
-        }
-      }
-    } catch (error) {
-      console.log('Error saving theme preference:', error);
-    }
+    setTheme(newTheme);
   };
   
-  // Get correct color scheme for current state
+  // Get colors based on current theme
   const colorScheme = isDarkMode ? 'dark' : 'light';
   
   return (

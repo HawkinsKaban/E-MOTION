@@ -1,32 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { Platform } from 'react-native';
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Slot } from 'expo-router';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 
-// Kita gunakan ini untuk menyimpan tema
-const THEME_STORAGE_KEY = 'app_theme';
-
-// Buat tema default (berdasarkan preferensi sistem atau light)
+// App wrapper with ThemeProvider
 export default function App() {
-  const [theme, setTheme] = useState('light');
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
+  );
+}
 
-  // Muat tema yang tersimpan saat aplikasi dimulai
-  useEffect(() => {
-    const loadTheme = async () => {
-      try {
-        const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-        if (savedTheme) {
-          setTheme(savedTheme);
-        }
-      } catch (error) {
-        console.error('Error loading theme:', error);
-      }
-    };
-
-    loadTheme();
-  }, []);
+// Inner component that has access to the theme context
+function AppContent() {
+  const { theme } = useTheme();
 
   return (
     <SafeAreaProvider>
