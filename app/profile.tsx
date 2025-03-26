@@ -17,6 +17,7 @@ import { useThemeColor } from '../hooks/useThemeColor';
 import Colors from '../constants/Colors';
 import { ThemedView } from '../components/ThemedView';
 import { ThemedText } from '../components/ThemedText';
+import { ThemeSwitch } from '../components/ThemeSwitch';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -30,7 +31,6 @@ export default function ProfileScreen() {
   const [email, setEmail] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [darkModeEnabled, setDarkModeEnabled] = useState(colorScheme === 'dark');
   const [dataSharing, setDataSharing] = useState(false);
   const [totalAnalyses, setTotalAnalyses] = useState(0);
   
@@ -291,6 +291,14 @@ export default function ProfileScreen() {
           <ThemedText style={styles.sectionTitle}>
             Settings
           </ThemedText>
+          
+          {/* Theme Switch */}
+          <ThemeSwitch 
+            containerStyle={[
+              styles.settingItem, 
+              { borderBottomColor: 'rgba(0, 0, 0, 0.05)' }
+            ]}
+          />
           
           <View style={styles.settingItem}>
             <View style={styles.settingLabelContainer}>
