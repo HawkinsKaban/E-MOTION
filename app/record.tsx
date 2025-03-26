@@ -7,7 +7,6 @@ import {
   Alert,
   ActivityIndicator,
   Animated,
-  SafeAreaView,
   Text
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -15,11 +14,13 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from '../hooks/useColorScheme';
 import { useThemeColor } from '../hooks/useThemeColor';
 import Colors from '../constants/Colors';
 import { ThemedView } from '../components/ThemedView';
 import { ThemedText } from '../components/ThemedText';
+import { PageHeader } from '../components/PageHeader';
 
 export default function RecordScreen() {
   const router = useRouter();
@@ -193,7 +194,6 @@ export default function RecordScreen() {
         <TouchableOpacity 
           style={styles.backButton}
           onPress={() => router.back()}
-          disabled={isProcessing}
         >
           <Ionicons 
             name="arrow-back" 
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingVertical: 12,
   },
   headerTitle: {
     fontSize: 20,
@@ -351,6 +351,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     padding: 8,
+    minWidth: 40,
   },
   headerRight: {
     width: 40,

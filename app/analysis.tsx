@@ -3,13 +3,13 @@ import {
   StyleSheet, 
   View, 
   Animated, 
-  SafeAreaView,
   Dimensions,
   BackHandler
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from '../hooks/useColorScheme';
 import { useThemeColor } from '../hooks/useThemeColor';
 import Colors from '../constants/Colors';

@@ -4,7 +4,6 @@ import {
   View, 
   TouchableOpacity, 
   ScrollView, 
-  SafeAreaView,
   Share,
   Alert,
   Dimensions
@@ -14,6 +13,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from '../hooks/useColorScheme';
 import { useThemeColor } from '../hooks/useThemeColor';
 import Colors from '../constants/Colors';
@@ -153,6 +153,7 @@ export default function ResultScreen() {
         <TouchableOpacity 
           style={styles.backButton}
           onPress={() => router.replace('/')}
+          hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
         >
           <Ionicons 
             name="arrow-back" 
@@ -168,6 +169,7 @@ export default function ResultScreen() {
         <TouchableOpacity 
           style={styles.shareButton}
           onPress={shareResults}
+          hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
         >
           <Ionicons 
             name="share-outline" 
@@ -352,8 +354,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
   },
   headerTitle: {
     fontSize: 20,
@@ -361,9 +363,11 @@ const styles = StyleSheet.create({
   },
   backButton: {
     padding: 8,
+    minWidth: 40,
   },
   shareButton: {
     padding: 8,
+    minWidth: 40,
   },
   scrollView: {
     flex: 1,

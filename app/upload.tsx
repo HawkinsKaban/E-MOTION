@@ -6,7 +6,6 @@ import {
   Image, 
   Alert,
   ActivityIndicator,
-  SafeAreaView,
   Text
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -14,11 +13,13 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from '../hooks/useColorScheme';
 import { useThemeColor } from '../hooks/useThemeColor';
 import Colors from '../constants/Colors';
 import { ThemedView } from '../components/ThemedView';
 import { ThemedText } from '../components/ThemedText';
+import { PageHeader } from '../components/PageHeader';
 
 export default function UploadScreen() {
   const router = useRouter();
@@ -105,25 +106,7 @@ export default function UploadScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
       
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => router.back()}
-          disabled={isProcessing}
-        >
-          <Ionicons 
-            name="arrow-back" 
-            size={24} 
-            color={textColor} 
-          />
-        </TouchableOpacity>
-        
-        <ThemedText style={styles.headerTitle}>
-          Upload Voice
-        </ThemedText>
-        
-        <View style={styles.headerRight} />
-      </View>
+      <PageHeader title="Upload Voice" />
       
       <View style={styles.contentContainer}>
         <ThemedView 
@@ -236,23 +219,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerRight: {
-    width: 40,
-  },
   contentContainer: {
     flex: 1,
     padding: 20,
@@ -264,8 +230,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   uploadImage: {
-    width: 120,
-    height: 120,
+    width: 100,
+    height: 100,
     marginBottom: 24,
   },
   instructionText: {
