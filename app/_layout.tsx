@@ -21,7 +21,17 @@ export default function AppLayout() {
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="login" options={{ headerShown: false }} />
+      
+      {/* Modifikasi opsi login untuk menambahkan unmountOnBlur */}
+      <Stack.Screen 
+        name="login" 
+        options={{ 
+          headerShown: false,
+          // Penting: tambahkan opsi ini agar halaman login di-refresh setiap kali dibuka
+          unmountOnBlur: true
+        }} 
+      />
+      
       <Stack.Screen name="register" options={{ headerShown: false }} />
       <Stack.Screen name="record" options={{ headerShown: false }} />
       <Stack.Screen name="upload" options={{ headerShown: false }} />

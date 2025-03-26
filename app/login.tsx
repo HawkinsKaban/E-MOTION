@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   StyleSheet, 
   View, 
@@ -11,7 +11,7 @@ import {
   Alert,
   ScrollView
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,6 +23,7 @@ import { ThemedText } from '../components/ThemedText';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
   const colorScheme = useColorScheme();
   const backgroundColor = useThemeColor({ light: Colors.light.background, dark: Colors.dark.background });
   const textColor = useThemeColor({ light: Colors.light.text, dark: Colors.dark.text });
@@ -34,6 +35,31 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [secureTextEntry, setSecureTextEntry] = useState(true);
+  
+  // Cek apakah ini adalah navigasi setelah logout
+  useEffect(() => {
+    const checkAndClearIfLogout = async () => {
+      try {
+        const isFromLogout = params?.reset || null;
+        
+        if (isFromLogout) {
+          console.log('Masuk setelah logout, membersihkan state');
+          
+          // Force reset AsyncStorage
+          try {
+            const keys = await AsyncStorage.getAllKeys();
+            await AsyncStorage.multiRemove(keys);
+          } catch (e) {
+            console.warn('Gagal membersihkan storage:', e);
+          }
+        }
+      } catch (e) {
+        console.log('Error saat cek logout status:', e);
+      }
+    };
+    
+    checkAndClearIfLogout();
+  }, [params]);
   
   const handleLogin = async () => {
     if (!email || !password) {

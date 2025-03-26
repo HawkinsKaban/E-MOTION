@@ -52,9 +52,14 @@ export default function ProfileScreen() {
         setUsername(storedUsername || 'User');
         // In a real app, you would fetch the user's email from the API
         setEmail(storedUsername ? `${storedUsername.toLowerCase().replace(/\s+/g, '.')}@example.com` : 'user@example.com');
+      } else {
+        setIsLoggedIn(false);
+        setUsername('');
+        setEmail('');
       }
     } catch (error) {
       console.log('Error checking login status:', error);
+      setIsLoggedIn(false);
     }
   };
   
@@ -103,42 +108,62 @@ export default function ProfileScreen() {
     }
   };
   
-  // Fungsi logout khusus untuk halaman profil
-  const handleLogout = async () => {
+  // Fungsi untuk menghapus semua data
+  const hardReset = async () => {
+    try {
+      // Bersihkan semua AsyncStorage
+      const keys = await AsyncStorage.getAllKeys();
+      await AsyncStorage.multiRemove(keys);
+      return true;
+    } catch (e) {
+      console.error("Error saat hard reset:", e);
+      return false;
+    }
+  };
+  
+  const handleLogout = () => {
     Alert.alert(
       'Logout',
-      'Are you sure you want to logout?',
+      'Apakah Anda yakin ingin keluar?',
       [
         {
-          text: 'Cancel',
+          text: 'Batal',
           style: 'cancel'
         },
         {
           text: 'Logout',
+          style: 'destructive',
           onPress: async () => {
+            // Aktifkan loading indicator
+            setIsLogoutLoading(true);
+            
             try {
-              // Aktifkan indikator loading
-              setIsLogoutLoading(true);
-              
-              // Hapus data pengguna dari AsyncStorage
-              await AsyncStorage.removeItem('userToken');
-              await AsyncStorage.removeItem('username');
-              
-              // Reset state aplikasi
+              // Reset UI dulu
               setIsLoggedIn(false);
               setUsername('');
               setEmail('');
+              setTotalAnalyses(0);
               
-              // Tunggu sebentar agar animasi loading terlihat
+              // Lakukan hard reset - hapus SEMUA data dari AsyncStorage
+              await hardReset();
+              
               setTimeout(() => {
+                // Matikan loading indicator
                 setIsLogoutLoading(false);
-                // Navigasi ke halaman beranda
-                router.replace('/');
-              }, 500);
+                
+                // Navigasi ke halaman login dengan force
+                router.push({
+                  pathname: '/login',
+                  // Force reload parameter
+                  params: {
+                    reset: Date.now() // Parameter random untuk force refresh
+                  }
+                });
+              }, 300);
             } catch (error) {
-              console.log('Error during logout:', error);
+              console.error('Error saat logout:', error);
               setIsLogoutLoading(false);
-              Alert.alert('Error', 'Failed to log out. Please try again.');
+              Alert.alert('Error', 'Gagal logout. Silakan mulai ulang aplikasi.');
             }
           }
         }
@@ -249,7 +274,7 @@ export default function ProfileScreen() {
                 </View>
               </View>
               
-              {/* Tombol Logout */}
+              {/* Logout Button */}
               <TouchableOpacity
                 style={[
                   styles.logoutButton,
