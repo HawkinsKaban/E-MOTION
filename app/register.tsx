@@ -116,8 +116,8 @@ export default function RegisterScreen() {
         </View>
         
         <Image 
-          source={require('../assets/images/splash-icon.png')} 
-          style={styles.logo}
+          source={require('../assets/images/logo.png')}
+          style={styles.uploadImage}
           resizeMode="contain"
         />
         

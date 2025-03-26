@@ -139,7 +139,7 @@ export default function HomeScreen() {
       <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
         <View style={styles.heroContainer}>
           <Image 
-            source={require('../../assets/images/splash-icon.png')} 
+            source={require('../../assets/images/logo.png')}
             style={styles.heroImage}
             resizeMode="contain"
           />

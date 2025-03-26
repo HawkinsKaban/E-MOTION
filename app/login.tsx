@@ -36,15 +36,15 @@ export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [secureTextEntry, setSecureTextEntry] = useState(true);
   
-  // Cek apakah ini adalah navigasi setelah logout
+  // Check if this is a navigation after logout
   useEffect(() => {
     const checkAndClearIfLogout = async () => {
       try {
         const isFromLogout = params?.reset || null;
-        
+
         if (isFromLogout) {
           console.log('Masuk setelah logout, membersihkan state');
-          
+
           // Force reset AsyncStorage
           try {
             const keys = await AsyncStorage.getAllKeys();
@@ -57,27 +57,27 @@ export default function LoginScreen() {
         console.log('Error saat cek logout status:', e);
       }
     };
-    
+
     checkAndClearIfLogout();
   }, [params]);
-  
+
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Please enter both email and password');
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
       // Here you would normally connect to your backend API
       // For demo purposes, simulating a successful login
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       // Save login info (in a real app, you would save a token from your API)
       await AsyncStorage.setItem('userToken', 'demo-token');
       await AsyncStorage.setItem('username', email.split('@')[0]);
-      
+
       setIsLoading(false);
       router.replace('/');
     } catch (error) {
@@ -87,31 +87,23 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={[styles.container, { backgroundColor }]}
     >
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-      
-      <ScrollView 
+
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.logoContainer}>
-          <Image 
-            source={require('../assets/images/splash-icon.png')} 
+          <Image
+            source={require('../assets/images/logo.png')}
             style={styles.logo}
             resizeMode="contain"
           />
-          <ThemedText style={styles.appName}>E-MOTION</ThemedText>
-          <ThemedText 
-            lightColor={Colors.light.subtext} 
-            darkColor={Colors.dark.subtext} 
-            style={styles.appTagline}
-          >
-            Voice Emotion Detection
-          </ThemedText>
         </View>
         
         <ThemedView style={styles.formContainer}>

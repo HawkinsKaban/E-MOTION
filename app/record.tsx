@@ -215,8 +215,8 @@ export default function RecordScreen() {
           lightColor={Colors.light.card} 
           darkColor={Colors.dark.card}
         >
-          <Image 
-            source={require('../assets/images/splash-icon.png')} 
+          <Image
+            source={require('../assets/images/logo.png')}
             style={styles.recordingImage}
             resizeMode="contain"
           />

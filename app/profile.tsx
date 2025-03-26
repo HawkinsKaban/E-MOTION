@@ -7,7 +7,8 @@ import {
   Alert,
   ScrollView,
   SafeAreaView,
-  ActivityIndicator
+  ActivityIndicator,
+  Image
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -27,7 +28,7 @@ export default function ProfileScreen() {
   const textColor = useThemeColor({ light: Colors.light.text, dark: Colors.dark.text });
   const cardColor = useThemeColor({ light: Colors.light.card, dark: Colors.dark.card });
   const borderColor = useThemeColor({ light: Colors.light.border, dark: Colors.dark.border });
-  
+
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -35,23 +36,25 @@ export default function ProfileScreen() {
   const [dataSharing, setDataSharing] = useState(false);
   const [totalAnalyses, setTotalAnalyses] = useState(0);
   const [isLogoutLoading, setIsLogoutLoading] = useState(false);
-  
+  const [profileImage, setProfileImage] = useState(null);
+
   useEffect(() => {
     checkLoginStatus();
     loadSettings();
     countAnalyses();
+    loadProfileImage();
   }, []);
-  
+
   const checkLoginStatus = async () => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
       const storedUsername = await AsyncStorage.getItem('username');
-      
+      const userEmail = await AsyncStorage.getItem('userEmail');
+
       if (userToken) {
         setIsLoggedIn(true);
         setUsername(storedUsername || 'User');
-        // In a real app, you would fetch the user's email from the API
-        setEmail(storedUsername ? `${storedUsername.toLowerCase().replace(/\s+/g, '.')}@example.com` : 'user@example.com');
+        setEmail(userEmail || (storedUsername ? `${storedUsername.toLowerCase().replace(/\s+/g, '.')}@example.com` : 'user@example.com'));
       } else {
         setIsLoggedIn(false);
         setUsername('');
@@ -62,11 +65,11 @@ export default function ProfileScreen() {
       setIsLoggedIn(false);
     }
   };
-  
+
   const loadSettings = async () => {
     try {
       const settings = await AsyncStorage.getItem('userSettings');
-      
+
       if (settings) {
         const parsedSettings = JSON.parse(settings);
         setNotificationsEnabled(parsedSettings.notifications ?? true);
@@ -76,11 +79,22 @@ export default function ProfileScreen() {
       console.log('Error loading settings:', error);
     }
   };
-  
+
+  const loadProfileImage = async () => {
+    try {
+      const image = await AsyncStorage.getItem('userProfileImage');
+      if (image) {
+        setProfileImage(image);
+      }
+    } catch (error) {
+      console.log('Error loading profile image:', error);
+    }
+  };
+
   const countAnalyses = async () => {
     try {
       const historyString = await AsyncStorage.getItem('analysisHistory');
-      
+
       if (historyString) {
         const history = JSON.parse(historyString);
         setTotalAnalyses(history.length);
@@ -89,17 +103,17 @@ export default function ProfileScreen() {
       console.log('Error counting analyses:', error);
     }
   };
-  
+
   const toggleNotifications = async (value) => {
     setNotificationsEnabled(value);
     saveSettings({ notifications: value, dataSharing });
   };
-  
+
   const toggleDataSharing = async (value) => {
     setDataSharing(value);
     saveSettings({ notifications: notificationsEnabled, dataSharing: value });
   };
-  
+
   const saveSettings = async (settings) => {
     try {
       await AsyncStorage.setItem('userSettings', JSON.stringify(settings));
@@ -107,74 +121,74 @@ export default function ProfileScreen() {
       console.log('Error saving settings:', error);
     }
   };
-  
-  // Fungsi untuk menghapus semua data
+
+  // Function to delete all data
   const hardReset = async () => {
     try {
-      // Bersihkan semua AsyncStorage
+      // Clear all AsyncStorage
       const keys = await AsyncStorage.getAllKeys();
       await AsyncStorage.multiRemove(keys);
       return true;
     } catch (e) {
-      console.error("Error saat hard reset:", e);
+      console.error("Error during hard reset:", e);
       return false;
     }
   };
-  
+
   const handleLogout = () => {
     Alert.alert(
       'Logout',
-      'Apakah Anda yakin ingin keluar?',
+      'Are you sure you want to log out?',
       [
         {
-          text: 'Batal',
+          text: 'Cancel',
           style: 'cancel'
         },
         {
           text: 'Logout',
           style: 'destructive',
           onPress: async () => {
-            // Aktifkan loading indicator
+            // Activate loading indicator
             setIsLogoutLoading(true);
-            
+
             try {
-              // Reset UI dulu
+              // Reset UI first
               setIsLoggedIn(false);
               setUsername('');
               setEmail('');
               setTotalAnalyses(0);
-              
-              // Lakukan hard reset - hapus SEMUA data dari AsyncStorage
+
+              // Perform hard reset - delete ALL data from AsyncStorage
               await hardReset();
-              
+
               setTimeout(() => {
-                // Matikan loading indicator
+                // Turn off loading indicator
                 setIsLogoutLoading(false);
-                
-                // Navigasi ke halaman login dengan force
+
+                // Navigate to login page with force
                 router.push({
                   pathname: '/login',
                   // Force reload parameter
                   params: {
-                    reset: Date.now() // Parameter random untuk force refresh
+                    reset: Date.now() // Random parameter to force refresh
                   }
                 });
               }, 300);
             } catch (error) {
-              console.error('Error saat logout:', error);
+              console.error('Error during logout:', error);
               setIsLogoutLoading(false);
-              Alert.alert('Error', 'Gagal logout. Silakan mulai ulang aplikasi.');
+              Alert.alert('Error', 'Failed to log out. Please restart the app.');
             }
           }
         }
       ]
     );
   };
-  
+
   const handleLogin = () => {
     router.push('/login');
   };
-  
+
   const handleAbout = () => {
     Alert.alert(
       'About E-MOTION',
@@ -182,7 +196,7 @@ export default function ProfileScreen() {
       [{ text: 'OK' }]
     );
   };
-  
+
   const handleHelp = () => {
     Alert.alert(
       'Help & Support',
@@ -190,7 +204,7 @@ export default function ProfileScreen() {
       [{ text: 'OK' }]
     );
   };
-  
+
   const handlePrivacyPolicy = () => {
     Alert.alert(
       'Privacy Policy',
@@ -202,83 +216,123 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-      
+
       <View style={styles.header}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <Ionicons 
-            name="arrow-back" 
-            size={24} 
-            color={textColor} 
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color={textColor}
           />
         </TouchableOpacity>
-        
+
         <ThemedText style={styles.headerTitle}>
           Profile
         </ThemedText>
-        
+
         <View style={styles.headerRight} />
       </View>
-      
-      <ScrollView 
+
+      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <ThemedView 
+        <ThemedView
           style={styles.profileCard}
-          lightColor={Colors.light.card} 
+          lightColor={Colors.light.card}
           darkColor={Colors.dark.card}
         >
           <View style={styles.avatarContainer}>
-            <View 
-              style={[
-                styles.avatar, 
-                { backgroundColor: Colors[colorScheme].tint + '40' }
-              ]}
-            >
-              <ThemedText style={styles.avatarText}>
-                {isLoggedIn ? username.charAt(0).toUpperCase() : '?'}
-              </ThemedText>
-            </View>
+            {profileImage ? (
+              <View
+                style={[
+                  styles.avatar,
+                  { overflow: 'hidden' }
+                ]}
+              >
+                <Image
+                  source={{ uri: profileImage }}
+                  style={{ width: '100%', height: '100%' }}
+                  resizeMode="cover"
+                />
+              </View>
+            ) : (
+              <View
+                style={[
+                  styles.avatar,
+                  { backgroundColor: Colors[colorScheme].tint + '40' }
+                ]}
+              >
+                <ThemedText style={styles.avatarText}>
+                  {isLoggedIn ? username.charAt(0).toUpperCase() : '?'}
+                </ThemedText>
+              </View>
+            )}
           </View>
-          
+
           {isLoggedIn ? (
             <View style={styles.userInfoContainer}>
               <ThemedText style={styles.username}>
                 {username}
               </ThemedText>
-              
-              <ThemedText 
+
+              <ThemedText
                 style={styles.email}
-                lightColor={Colors.light.subtext} 
+                lightColor={Colors.light.subtext}
                 darkColor={Colors.dark.subtext}
               >
                 {email}
               </ThemedText>
-              
+
               <View style={styles.statsContainer}>
                 <View style={styles.statItem}>
                   <ThemedText style={styles.statValue}>
                     {totalAnalyses}
                   </ThemedText>
-                  <ThemedText 
+                  <ThemedText
                     style={styles.statLabel}
-                    lightColor={Colors.light.subtext} 
+                    lightColor={Colors.light.subtext}
                     darkColor={Colors.dark.subtext}
                   >
                     Analyses
                   </ThemedText>
                 </View>
               </View>
-              
+
+              {/* Edit Profile Button */}
+              <TouchableOpacity
+                style={[
+                  styles.editProfileButton,
+                  {
+                    backgroundColor: Colors[colorScheme].tint + '20',
+                    borderColor: Colors[colorScheme].tint + '40',
+                  }
+                ]}
+                onPress={() => router.push('/editProfile')}
+              >
+                <Ionicons
+                  name="pencil-outline"
+                  size={20}
+                  color={Colors[colorScheme].tint}
+                />
+                <ThemedText
+                  style={styles.editProfileButtonText}
+                  lightColor={Colors[colorScheme].tint}
+                  darkColor={Colors[colorScheme].tint}
+                >
+                  Edit Profile
+                </ThemedText>
+              </TouchableOpacity>
+
               {/* Logout Button */}
               <TouchableOpacity
                 style={[
                   styles.logoutButton,
-                  { 
+                  {
                     backgroundColor: Colors[colorScheme].error + '20',
                     borderColor: Colors[colorScheme].error + '40',
                   }
@@ -290,14 +344,14 @@ export default function ProfileScreen() {
                   <ActivityIndicator size="small" color={Colors[colorScheme].error} />
                 ) : (
                   <>
-                    <Ionicons 
-                      name="log-out-outline" 
-                      size={20} 
-                      color={Colors[colorScheme].error} 
+                    <Ionicons
+                      name="log-out-outline"
+                      size={20}
+                      color={Colors[colorScheme].error}
                     />
-                    <ThemedText 
+                    <ThemedText
                       style={styles.logoutButtonText}
-                      lightColor={Colors[colorScheme].error} 
+                      lightColor={Colors[colorScheme].error}
                       darkColor={Colors[colorScheme].error}
                     >
                       Logout
@@ -311,15 +365,15 @@ export default function ProfileScreen() {
               <ThemedText style={styles.notLoggedInTitle}>
                 Not Logged In
               </ThemedText>
-              
-              <ThemedText 
+
+              <ThemedText
                 style={styles.notLoggedInText}
-                lightColor={Colors.light.subtext} 
+                lightColor={Colors.light.subtext}
                 darkColor={Colors.dark.subtext}
               >
                 Login to save your analysis history and access all features.
               </ThemedText>
-              
+
               <TouchableOpacity
                 style={[
                   styles.loginButton,
@@ -335,129 +389,153 @@ export default function ProfileScreen() {
             </View>
           )}
         </ThemedView>
-        
-        <ThemedView 
+
+        <ThemedView
           style={styles.sectionCard}
-          lightColor={Colors.light.card} 
+          lightColor={Colors.light.card}
           darkColor={Colors.dark.card}
         >
           <ThemedText style={styles.sectionTitle}>
             Settings
           </ThemedText>
-          
+
           {/* Theme System Toggle - New improved toggle with system option */}
           <ThemeSystemToggle />
-          
+
           <View style={styles.settingItem}>
             <View style={styles.settingLabelContainer}>
-              <Ionicons 
-                name="notifications-outline" 
-                size={22} 
-                color={Colors[colorScheme].tint} 
+              <Ionicons
+                name="notifications-outline"
+                size={22}
+                color={Colors[colorScheme].tint}
                 style={styles.settingIcon}
               />
               <ThemedText style={styles.settingLabel}>
                 Notifications
               </ThemedText>
             </View>
-            
+
             <Switch
               value={notificationsEnabled}
               onValueChange={toggleNotifications}
-              trackColor={{ 
-                false: '#767577', 
+              trackColor={{
+                false: '#767577',
                 true: Colors[colorScheme].tint + '70'
               }}
               thumbColor={notificationsEnabled ? Colors[colorScheme].tint : '#f4f3f4'}
             />
           </View>
-          
-          <View 
+
+          <View
             style={[
-              styles.settingItem, 
+              styles.settingItem,
               { borderBottomWidth: 0 }
             ]}
           >
             <View style={styles.settingLabelContainer}>
-              <Ionicons 
-                name="share-social-outline" 
-                size={22} 
-                color={Colors[colorScheme].tint} 
+              <Ionicons
+                name="share-social-outline"
+                size={22}
+                color={Colors[colorScheme].tint}
                 style={styles.settingIcon}
               />
               <ThemedText style={styles.settingLabel}>
                 Anonymous Data Sharing
               </ThemedText>
             </View>
-            
+
             <Switch
               value={dataSharing}
               onValueChange={toggleDataSharing}
-              trackColor={{ 
-                false: '#767577', 
+              trackColor={{
+                false: '#767577',
                 true: Colors[colorScheme].tint + '70'
               }}
               thumbColor={dataSharing ? Colors[colorScheme].tint : '#f4f3f4'}
             />
           </View>
         </ThemedView>
-        
-        <ThemedView 
+
+        <ThemedView
           style={styles.sectionCard}
-          lightColor={Colors.light.card} 
+          lightColor={Colors.light.card}
           darkColor={Colors.dark.card}
         >
           <ThemedText style={styles.sectionTitle}>
             Information
           </ThemedText>
-          
-          <TouchableOpacity 
+
+          {/* FAQ Menu Item */}
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => router.push('/faq')}
+          >
+            <View style={styles.menuLabelContainer}>
+              <Ionicons
+                name="help-circle-outline"
+                size={22}
+                color={Colors[colorScheme].tint}
+                style={styles.menuIcon}
+              />
+              <ThemedText style={styles.menuLabel}>
+                FAQ
+              </ThemedText>
+            </View>
+
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={Colors[colorScheme].subtext}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
             style={styles.menuItem}
             onPress={handleAbout}
           >
             <View style={styles.menuLabelContainer}>
-              <Ionicons 
-                name="information-circle-outline" 
-                size={22} 
-                color={Colors[colorScheme].tint} 
+              <Ionicons
+                name="information-circle-outline"
+                size={22}
+                color={Colors[colorScheme].tint}
                 style={styles.menuIcon}
               />
               <ThemedText style={styles.menuLabel}>
                 About E-MOTION
               </ThemedText>
             </View>
-            
-            <Ionicons 
-              name="chevron-forward" 
-              size={20} 
-              color={Colors[colorScheme].subtext} 
+
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={Colors[colorScheme].subtext}
             />
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={styles.menuItem}
             onPress={handleHelp}
           >
             <View style={styles.menuLabelContainer}>
-              <Ionicons 
-                name="help-circle-outline" 
-                size={22} 
-                color={Colors[colorScheme].tint} 
+              <Ionicons
+                name="help-buoy-outline"
+                size={22}
+                color={Colors[colorScheme].tint}
                 style={styles.menuIcon}
               />
               <ThemedText style={styles.menuLabel}>
                 Help & Support
               </ThemedText>
             </View>
-            
-            <Ionicons 
-              name="chevron-forward" 
-              size={20} 
-              color={Colors[colorScheme].subtext} 
+
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={Colors[colorScheme].subtext}
             />
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={[
               styles.menuItem,
               { borderBottomWidth: 0 }
@@ -465,21 +543,21 @@ export default function ProfileScreen() {
             onPress={handlePrivacyPolicy}
           >
             <View style={styles.menuLabelContainer}>
-              <Ionicons 
-                name="shield-checkmark-outline" 
-                size={22} 
-                color={Colors[colorScheme].tint} 
+              <Ionicons
+                name="shield-checkmark-outline"
+                size={22}
+                color={Colors[colorScheme].tint}
                 style={styles.menuIcon}
               />
               <ThemedText style={styles.menuLabel}>
                 Privacy Policy
               </ThemedText>
             </View>
-            
-            <Ionicons 
-              name="chevron-forward" 
-              size={20} 
-              color={Colors[colorScheme].subtext} 
+
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={Colors[colorScheme].subtext}
             />
           </TouchableOpacity>
         </ThemedView>
@@ -563,6 +641,21 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 14,
     marginTop: 4,
+  },
+  editProfileButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 12,
+  },
+  editProfileButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginLeft: 8,
   },
   logoutButton: {
     flexDirection: 'row',

@@ -132,7 +132,7 @@ export default function UploadScreen() {
           darkColor={Colors.dark.card}
         >
           <Image 
-            source={require('../assets/images/splash-icon.png')} 
+            source={require('../assets/images/logo.png')}
             style={styles.uploadImage}
             resizeMode="contain"
           />
