@@ -3,18 +3,19 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
   Animated
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from '../hooks/useColorScheme';
 import { useThemeColor } from '../hooks/useThemeColor';
 import Colors from '../constants/Colors';
 import { ThemedView } from '../components/ThemedView';
 import { ThemedText } from '../components/ThemedText';
+import { PageHeader } from '../components/PageHeader';
 
 // FAQ Item Component
 const FAQItem = ({ question, answer, isOpen, onToggle }) => {
@@ -55,7 +56,6 @@ export default function FAQScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const backgroundColor = useThemeColor({ light: Colors.light.background, dark: Colors.dark.background });
-  const textColor = useThemeColor({ light: Colors.light.text, dark: Colors.dark.text });
 
   // State to track which FAQ is open
   const [openFAQ, setOpenFAQ] = useState(0);
@@ -99,25 +99,16 @@ export default function FAQScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
-      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-
-      <View style={[styles.header, { backgroundColor: Colors[colorScheme].tint }]}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color="#FFFFFF"
-          />
-        </TouchableOpacity>
-
-        <ThemedText style={styles.headerTitle} lightColor="#FFFFFF" darkColor="#FFFFFF">
-          FAQ
-        </ThemedText>
-
-        <View style={styles.headerRight} />
+      <StatusBar style="light" />
+      
+      {/* Tinted Header */}
+      <View style={[styles.customHeader, { backgroundColor: Colors[colorScheme].tint }]}>
+        <PageHeader 
+          title="FAQ" 
+          showBackButton={true}
+          onBack={() => router.back()}
+          rightElement={<View style={styles.headerRight} />}
+        />
       </View>
 
       <ScrollView
@@ -149,19 +140,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  backButton: {
-    padding: 8,
+  customHeader: {
+    width: '100%',
   },
   headerRight: {
     width: 40,

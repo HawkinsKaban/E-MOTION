@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StatusBar } from 'expo-status-bar';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from '../../hooks/useColorScheme';
 import { useThemeColor } from '../../hooks/useThemeColor';
 import Colors from '../../constants/Colors';
@@ -17,6 +18,7 @@ export default function HomeScreen() {
   const textColor = useThemeColor({ light: Colors.light.text, dark: Colors.dark.text });
   const subtextColor = useThemeColor({ light: Colors.light.subtext, dark: Colors.dark.subtext });
   const cardColor = useThemeColor({ light: Colors.light.card, dark: Colors.dark.card });
+  const insets = useSafeAreaInsets();
   
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
@@ -111,10 +113,11 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor }]}>
+    <View style={[styles.container, { backgroundColor }]}>
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
       
-      <View style={styles.header}>
+      {/* Header with Safe Area Insets */}
+      <View style={[styles.header, { paddingTop: insets.top }]}>
         <View>
           <ThemedText style={styles.greeting}>
             {isLoggedIn ? `Hello, ${username}` : 'Hello there'}
@@ -254,7 +257,10 @@ export default function HomeScreen() {
           </ThemedView>
         </View>
       </ScrollView>
-    </SafeAreaView>
+      
+      {/* Add safe area padding to the bottom if needed */}
+      <View style={{ height: insets.bottom }} />
+    </View>
   );
 }
 
@@ -267,7 +273,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 20,
     paddingBottom: 10,
   },
   greeting: {
@@ -293,8 +298,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   heroImage: {
-    width: 200,
-    height: 200,
+    width: 180, // Slightly smaller
+    height: 180, // Slightly smaller
     marginBottom: 20,
   },
   actionCard: {

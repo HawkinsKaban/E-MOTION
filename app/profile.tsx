@@ -20,8 +20,11 @@ import Colors from '../constants/Colors';
 import { ThemedView } from '../components/ThemedView';
 import { ThemedText } from '../components/ThemedText';
 import { ThemeSystemToggle } from '../components/ThemeSystemToggle';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { PageHeader } from '../components/PageHeader';
 
 export default function ProfileScreen() {
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const colorScheme = useColorScheme();
   const backgroundColor = useThemeColor({ light: Colors.light.background, dark: Colors.dark.background });
@@ -214,26 +217,11 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor }]}>
+    <View style={[styles.container, { backgroundColor }]}>
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={textColor}
-          />
-        </TouchableOpacity>
-
-        <ThemedText style={styles.headerTitle}>
-          Profile
-        </ThemedText>
-
-        <View style={styles.headerRight} />
+      
+      <View style={{ paddingTop: insets.top, backgroundColor: backgroundColor }}>
+        <PageHeader title="Profile" />
       </View>
 
       <ScrollView
@@ -562,30 +550,16 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </ThemedView>
       </ScrollView>
-    </SafeAreaView>
+      
+      {/* Add safe area padding to the bottom if needed */}
+      <View style={{ height: insets.bottom }} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerRight: {
-    width: 40,
   },
   scrollView: {
     flex: 1,

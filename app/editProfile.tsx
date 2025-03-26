@@ -9,8 +9,7 @@ import {
   Platform,
   ActivityIndicator,
   Alert,
-  ScrollView,
-  SafeAreaView
+  ScrollView
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -18,11 +17,13 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from '../hooks/useColorScheme';
 import { useThemeColor } from '../hooks/useThemeColor';
 import Colors from '../constants/Colors';
 import { ThemedView } from '../components/ThemedView';
 import { ThemedText } from '../components/ThemedText';
+import { PageHeader } from '../components/PageHeader';
 
 export default function EditProfileScreen() {
   const router = useRouter();
@@ -168,25 +169,12 @@ export default function EditProfileScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
 
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-          disabled={isLoading}
-        >
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={textColor}
-          />
-        </TouchableOpacity>
-
-        <ThemedText style={styles.headerTitle}>
-          Edit Profile
-        </ThemedText>
-
-        <View style={styles.headerRight} />
-      </View>
+      <PageHeader 
+        title="Edit Profile"
+        showBackButton={true}
+        onBack={() => router.back()}
+        disabled={isLoading}
+      />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -474,23 +462,6 @@ export default function EditProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerRight: {
-    width: 40,
   },
   keyboardAvoidingView: {
     flex: 1,
