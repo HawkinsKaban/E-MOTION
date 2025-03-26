@@ -1,7 +1,23 @@
-import { useTheme } from '../context/ThemeContext';
+import { useState, useEffect } from 'react';
+import themeManager from '../utils/themeManager';
 
-// Simple hook to get current theme for use with Colors object
-export function useColorScheme() {
-  const { theme } = useTheme();
+/**
+ * Hook that returns the current theme (light/dark)
+ * Compatible with RN's useColorScheme
+ */
+export function useColorScheme(): 'light' | 'dark' {
+  const [theme, setTheme] = useState<'light' | 'dark'>(
+    themeManager.getTheme() as 'light' | 'dark'
+  );
+  
+  // Subscribe to theme changes
+  useEffect(() => {
+    const unsubscribe = themeManager.addThemeListener((newTheme) => {
+      setTheme(newTheme as 'light' | 'dark');
+    });
+    
+    return unsubscribe;
+  }, []);
+  
   return theme;
 }

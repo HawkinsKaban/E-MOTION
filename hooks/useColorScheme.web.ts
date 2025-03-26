@@ -1,23 +1,23 @@
 import { useState, useEffect } from 'react';
-import { useTheme } from '../hooks/useTheme';
+import themeManager from '../utils/themeManager';
 
 /**
- * Enhanced useColorScheme hook for web
- * - Supports client-side rendering
- * - Works with ThemeContext
- * - Handles hydration properly
+ * Web-specific implementation of useColorScheme
+ * Works the same as the normal hook
  */
-export function useColorScheme() {
-  const [isClient, setIsClient] = useState(false);
-  const { theme } = useTheme();
+export function useColorScheme(): 'light' | 'dark' {
+  const [theme, setTheme] = useState<'light' | 'dark'>(
+    themeManager.getTheme() as 'light' | 'dark'
+  );
   
-  // For initial SSR, use a default theme
-  // After hydration, use the actual theme from context
+  // Subscribe to theme changes
   useEffect(() => {
-    setIsClient(true);
+    const unsubscribe = themeManager.addThemeListener((newTheme) => {
+      setTheme(newTheme as 'light' | 'dark');
+    });
+    
+    return unsubscribe;
   }, []);
   
-  // During first render (SSR), return light theme to avoid hydration mismatch
-  // After hydration, return the actual theme from context
-  return isClient ? theme : 'light';
+  return theme;
 }

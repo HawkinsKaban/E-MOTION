@@ -3,15 +3,17 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/Colors';
 import { ThemedText } from './ThemedText';
-import { useTheme, THEME_MODE } from '../context/ThemeContext';
+import { useTheme } from '../hooks/useTheme';
 import { useColorScheme } from '../hooks/useColorScheme';
 
 /**
- * Theme toggle component with Light/Dark/System options
+ * Component for toggling between Light/Dark/System theme options
  */
 export function ThemeSystemToggle() {
-  const { themeMode, setThemeMode } = useTheme();
+  const { themeMode, setThemeMode, THEME_MODE } = useTheme();
   const colorScheme = useColorScheme();
+  
+  console.log('[ThemeSystemToggle] Rendering with themeMode:', themeMode);
   
   return (
     <View style={styles.container}>
@@ -24,7 +26,7 @@ export function ThemeSystemToggle() {
           label="Terang" 
           isSelected={themeMode === THEME_MODE.LIGHT}
           onSelect={() => {
-            console.log('Setting theme to LIGHT');
+            console.log('[ThemeSystemToggle] Setting theme to Light');
             setThemeMode(THEME_MODE.LIGHT);
           }}
           colorScheme={colorScheme}
@@ -36,7 +38,7 @@ export function ThemeSystemToggle() {
           label="Gelap" 
           isSelected={themeMode === THEME_MODE.DARK}
           onSelect={() => {
-            console.log('Setting theme to DARK');
+            console.log('[ThemeSystemToggle] Setting theme to Dark');
             setThemeMode(THEME_MODE.DARK);
           }}
           colorScheme={colorScheme}
@@ -48,7 +50,7 @@ export function ThemeSystemToggle() {
           label="Sistem" 
           isSelected={themeMode === THEME_MODE.SYSTEM}
           onSelect={() => {
-            console.log('Setting theme to SYSTEM');
+            console.log('[ThemeSystemToggle] Setting theme to System');
             setThemeMode(THEME_MODE.SYSTEM);
           }}
           colorScheme={colorScheme}
@@ -58,7 +60,9 @@ export function ThemeSystemToggle() {
   );
 }
 
-// Individual theme option button
+/**
+ * Individual theme option button
+ */
 function ThemeOption({ icon, label, isSelected, onSelect, colorScheme }) {
   return (
     <TouchableOpacity 

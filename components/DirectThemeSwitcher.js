@@ -3,7 +3,7 @@ import { View, Switch, StyleSheet, Platform, TouchableOpacity } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/Colors';
 import { ThemedText } from './ThemedText';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../hooks/useTheme';
 import { useColorScheme } from '../hooks/useColorScheme';
 
 /**
@@ -16,6 +16,11 @@ export function DirectThemeSwitcher() {
 
   // Get colors based on current theme
   const themeColors = isDarkMode ? Colors.dark : Colors.light;
+  
+  const handleToggle = () => {
+    console.log('[DirectThemeSwitcher] Toggling theme');
+    toggleTheme();
+  };
   
   return (
     <View style={styles.container}>
@@ -38,10 +43,7 @@ export function DirectThemeSwitcher() {
             styles.webButton,
             { backgroundColor: themeColors.tint }
           ]}
-          onPress={() => {
-            console.log('Toggling theme, current:', theme);
-            toggleTheme();
-          }}
+          onPress={handleToggle}
         >
           <ThemedText style={styles.webButtonText} lightColor="#FFFFFF" darkColor="#FFFFFF">
             {isDarkMode ? 'Switch to Light' : 'Switch to Dark'}
@@ -51,10 +53,7 @@ export function DirectThemeSwitcher() {
         // For native, use Switch
         <Switch
           value={isDarkMode}
-          onValueChange={() => {
-            console.log('Toggling theme, current:', theme);
-            toggleTheme();
-          }}
+          onValueChange={handleToggle}
           trackColor={{ 
             false: '#767577', 
             true: themeColors.tint + '70'

@@ -1,20 +1,37 @@
-import { useContext } from 'react';
-import { ThemeContext } from '../context/ThemeContext';
+import { useState, useEffect } from 'react';
+import themeManager from '../utils/themeManager';
 
-// Hook for accessing theme from context
+/**
+ * Hook to access and control the app's theme
+ */
 export function useTheme() {
-  const context = useContext(ThemeContext);
+  const [theme, setTheme] = useState(themeManager.getTheme());
+  const [themeMode, setThemeMode] = useState(themeManager.getThemeMode());
   
-  if (context === undefined) {
-    console.error('useTheme must be used within a ThemeProvider');
-    // Return a default value to prevent crashes
-    return { 
-      theme: 'light', 
-      themeMode: 'system',
-      setThemeMode: () => {},
-      toggleTheme: () => {}
-    };
-  }
+  // Listen for theme changes from the theme manager
+  useEffect(() => {
+    const unsubscribe = themeManager.addThemeListener((newTheme) => {
+      setTheme(newTheme);
+      setThemeMode(themeManager.getThemeMode());
+    });
+    
+    return unsubscribe;
+  }, []);
   
-  return context;
+  return {
+    // Current theme (light/dark)
+    theme,
+    
+    // Current theme mode (light/dark/system)
+    themeMode,
+    
+    // Function to set the theme mode
+    setThemeMode: themeManager.setThemeMode,
+    
+    // Function to toggle between light/dark
+    toggleTheme: themeManager.toggleTheme,
+    
+    // Theme mode constants
+    THEME_MODE: themeManager.THEMES
+  };
 }
