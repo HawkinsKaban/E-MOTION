@@ -17,7 +17,7 @@ import { useThemeColor } from '../hooks/useThemeColor';
 import Colors from '../constants/Colors';
 import { ThemedView } from '../components/ThemedView';
 import { ThemedText } from '../components/ThemedText';
-import { DirectThemeSwitcher } from '../components/DirectThemeSwitcher';
+import { ThemeSystemToggle } from '../components/ThemeSystemToggle'; // Import ThemeSystemToggle
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -292,8 +292,8 @@ export default function ProfileScreen() {
             Settings
           </ThemedText>
           
-          {/* Direct Theme Switcher */}
-          <DirectThemeSwitcher />
+          {/* Theme System Toggle - New improved toggle with system option */}
+          <ThemeSystemToggle />
           
           <View style={styles.settingItem}>
             <View style={styles.settingLabelContainer}>

@@ -1,27 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { View, Switch, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Switch, StyleSheet, Platform, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/Colors';
 import { ThemedText } from './ThemedText';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../hooks/useTheme';
+import { useColorScheme } from '../hooks/useColorScheme';
 
 export function DirectThemeSwitcher() {
-  const { theme, setTheme } = useTheme();
-  const [isDarkMode, setIsDarkMode] = useState(theme === 'dark');
-  
-  // Update the switch state when theme changes
-  useEffect(() => {
-    setIsDarkMode(theme === 'dark');
-  }, [theme]);
-  
-  // Toggle theme function
-  const toggleTheme = (value) => {
-    const newTheme = value ? 'dark' : 'light';
-    setTheme(newTheme);
-  };
-  
+  const { theme, toggleTheme } = useTheme();
+  const colorScheme = useColorScheme();
+  const isDarkMode = theme === 'dark';
+
   // Get colors based on current theme
-  const colorScheme = isDarkMode ? 'dark' : 'light';
+  const themeColors = isDarkMode ? Colors.dark : Colors.light;
+  
+  // Simple toggle function
+  const handleToggle = () => {
+    toggleTheme();
+  };
   
   return (
     <View style={styles.container}>
@@ -29,7 +25,7 @@ export function DirectThemeSwitcher() {
         <Ionicons 
           name={isDarkMode ? "moon" : "sunny"} 
           size={22} 
-          color={Colors[colorScheme].tint} 
+          color={themeColors.tint} 
           style={styles.icon} 
         />
         <ThemedText style={styles.text}>
@@ -37,15 +33,31 @@ export function DirectThemeSwitcher() {
         </ThemedText>
       </View>
       
-      <Switch
-        value={isDarkMode}
-        onValueChange={toggleTheme}
-        trackColor={{ 
-          false: '#767577', 
-          true: Colors[colorScheme].tint + '70'
-        }}
-        thumbColor={isDarkMode ? Colors[colorScheme].tint : '#f4f3f4'}
-      />
+      {Platform.OS === 'web' ? (
+        // For web, use a simple button instead of Switch
+        <TouchableOpacity 
+          style={[
+            styles.webButton,
+            { backgroundColor: themeColors.tint }
+          ]}
+          onPress={handleToggle}
+        >
+          <ThemedText style={styles.webButtonText} lightColor="#FFFFFF" darkColor="#FFFFFF">
+            {isDarkMode ? 'Switch to Light' : 'Switch to Dark'}
+          </ThemedText>
+        </TouchableOpacity>
+      ) : (
+        // For native, use Switch
+        <Switch
+          value={isDarkMode}
+          onValueChange={handleToggle}
+          trackColor={{ 
+            false: '#767577', 
+            true: themeColors.tint + '70'
+          }}
+          thumbColor={isDarkMode ? themeColors.tint : '#f4f3f4'}
+        />
+      )}
     </View>
   );
 }
@@ -68,5 +80,14 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
+  },
+  webButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  webButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
   }
 });
