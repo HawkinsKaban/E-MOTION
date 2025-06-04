@@ -1,15 +1,23 @@
-const { apiKey } = require('../config');
+// backend/src/middlewares/apiKeyAuth.js
+import config from '../config/index.js';
 
-module.exports = function(req, res, next) {
-  const clientApiKey = req.header('x-api-key');
+const apiKeyAuth = (req, res, next) => {
+  const apiKey = req.headers['x-api-key'];
 
-  if (!clientApiKey) {
-    return res.status(401).json({ msg: 'No API key, authorization denied' });
+  if (!apiKey) {
+    const error = new Error('API Key is missing from headers.');
+    error.statusCode = 401; // Unauthorized
+    return next(error);
   }
 
-  if (clientApiKey !== apiKey) {
-    return res.status(401).json({ msg: 'Invalid API key, authorization denied' });
+  if (apiKey !== config.apiKeySecret) {
+    const error = new Error('Invalid API Key.');
+    error.statusCode = 403; // Forbidden
+    return next(error);
   }
 
+  // Jika API Key valid, lanjutkan ke handler berikutnya
   next();
 };
+
+export default apiKeyAuth;

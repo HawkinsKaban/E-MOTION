@@ -1,47 +1,48 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet'); // Untuk keamanan dasar HTTP headers
-const { port, isDevelopment } = require('./config');
-const connectDB = require('./config/database');
-const mainRoutes = require('./routes');
-const errorHandler = require('./middlewares/errorHandler');
-const requestLogger = require('./middlewares/logger'); // Ganti dengan morgan jika Anda memilihnya
-const swaggerUi = require('swagger-ui-express');
-const swaggerSpec = require('../swaggerDef'); // Asumsi swaggerDef.js ada di root
+// backend/src/app.js
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import connectDB from './config/database.js';
+import mainRouter from './routes/index.js';
+import globalErrorHandler from './middlewares/errorHandler.js'; // Menggunakan nama yang lebih deskriptif
+import config from './config/index.js'; // Untuk mengakses variabel lingkungan
 
-// Inisialisasi aplikasi Express
 const app = express();
 
 // Koneksi ke Database
 connectDB();
 
-// Middleware
-app.use(helmet()); // Keamanan HTTP Headers
-app.use(cors()); // Aktifkan CORS untuk semua rute
-app.use(express.json({ limit: '10mb' })); // Body parser untuk JSON, batasi ukuran payload
-app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Body parser untuk URL-encoded data
+// Middleware Keamanan Dasar
+app.use(helmet()); // Setel header HTTP yang aman (harus di awal)
+app.use(cors({
+  origin: '*', // Ganti dengan domain frontend Anda di produksi, misalnya: ['http://localhost:8081', 'https://your-app-domain.com']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key']
+}));
 
-// Logger (gunakan sebelum rute API)
-app.use(requestLogger);
+// Middleware Parsing
+app.use(express.json({ limit: '10mb' })); // Parse JSON request bodies
+app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded request bodies
 
-// Rute API Utama (dengan prefix /api/v1)
-app.use('/api/v1', mainRoutes);
-
-// Rute untuk Swagger UI (jika digunakan)
-if (isDevelopment) {
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-  console.log(`Swagger UI available at /api-docs`);
+// HTTP request logger middleware (morgan)
+if (config.nodeEnv === 'development' || process.env.NODE_ENV === 'development') { // Periksa kedua cara
+  app.use(morgan('dev'));
+} else {
+  app.use(morgan('combined')); // Format logging yang lebih detail untuk produksi
 }
 
-// Middleware Penanganan Error Global (harus diletakkan setelah semua rute)
-app.use(errorHandler);
+// Rute API Utama
+app.use('/api', mainRouter);
 
-// Jalankan server
-app.listen(port, () => {
-  console.log(`Server E-MOTION berjalan di http://localhost:${port}`);
-  if (!isDevelopment) {
-    console.log('Running in production mode');
-  }
+// Middleware untuk menangani rute tidak ditemukan (404)
+app.use((req, res, next) => {
+  const error = new Error(`Resource not found at ${req.originalUrl}`);
+  error.statusCode = 404;
+  next(error);
 });
 
-module.exports = app; // Untuk pengujian
+// Global Error Handler (harus menjadi middleware terakhir yang didefinisikan)
+app.use(globalErrorHandler);
+
+export default app;

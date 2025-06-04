@@ -5,9 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="89ee40f6-7cfe-48b1-b7d8-ec604f022519" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/backend/.env" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/server.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/controllers/authController.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/controllers/userController.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/middlewares/authMiddleware.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/routes/authRoutes.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/routes/userRoutes.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/config/database.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/config/database.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/config/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/config/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/controllers/emotionController.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/controllers/emotionController.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/middlewares/apiKeyAuth.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/middlewares/apiKeyAuth.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/middlewares/errorHandler.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/middlewares/errorHandler.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/models/EmotionLog.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/models/EmotionLog.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/models/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/models/user.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/routes/emotionRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/routes/emotionRoutes.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/routes/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/routes/index.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,6 +74,11 @@
     &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\KERJA\Bantu Teman\E-MOTION" />
+    </key>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">

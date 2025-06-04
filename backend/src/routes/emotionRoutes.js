@@ -1,19 +1,59 @@
-const express = require('express');
+// backend/src/routes/emotionRoutes.js
+import express from 'express';
+import { body, param } from 'express-validator';
+import {
+  logEmotionDetection,
+  getAllEmotionLogs,
+  getEmotionLogById,
+  updateEmotionLogFeedback,
+} from '../controllers/emotionController.js';
+// import apiKeyAuth from '../middlewares/apiKeyAuth.js'; // Bisa tetap digunakan jika ada endpoint khusus API key
+import { protect, authorize } from '../middlewares/authMiddleware.js';
+
 const router = express.Router();
-const { logEmotion, getEmotionHistory } = require('../controllers/emotionController');
-const apiKeyAuth = require('../middlewares/apiKeyAuth');
 
-// Semua rute di sini akan diawali dengan /api/v1/emotions (lihat di app.js)
+// Validasi untuk logEmotionDetection
+const logEmotionValidationRules = [
+  body('detectedEmotion').notEmpty().withMessage('Detected emotion is required.').isString().trim(),
+  body('confidence').optional({ checkFalsy: true }).isFloat({ min: 0, max: 1 }).withMessage('Confidence must be a number between 0 and 1.'),
+  body('audioFileUri').optional({ checkFalsy: true }).isURL().withMessage('Audio file URI must be a valid URL.'), // Atau isString() jika path lokal
+  body('feedback').optional().isIn(['accurate', 'inaccurate', 'neutral', 'not_provided']).withMessage('Invalid feedback value.'),
+  body('notes').optional({ checkFalsy: true }).isString().trim().isLength({ max: 500 }).withMessage('Notes cannot exceed 500 characters.'),
+  body('modelVersi').optional({ checkFalsy: true }).isString().trim(),
+  body('perangkatInfo').optional({ checkFalsy: true }).isString().trim(),
+  body('bahasaInput').optional({ checkFalsy: true }).isString().trim().isLength({ min: 2, max: 10 }),
+  // userId akan diambil dari token, jadi tidak perlu divalidasi di body kecuali untuk kasus anonymous_api_key_user
+  body('userId').optional({ checkFalsy: true }).isString().trim(),
+];
 
-// @route   POST /log
-// @desc    Log a detected emotion
-// @access  Private
-router.post('/log', apiKeyAuth, logEmotion);
+// Validasi untuk updateEmotionLogFeedback
+const updateFeedbackValidationRules = [
+  body('feedback').optional().isIn(['accurate', 'inaccurate', 'neutral', 'not_provided']).withMessage('Invalid feedback value.'),
+  body('notes').optional({ checkFalsy: true }).isString().trim().isLength({ max: 500 }).withMessage('Notes cannot exceed 500 characters.'),
+];
 
-// @route   GET /history/:deviceId
-// @desc    Get emotion history for a device
-// @access  Private
-router.get('/history/:deviceId', apiKeyAuth, getEmotionHistory);
+// Validasi parameter ID
+const idParamValidationRule = param('id').isMongoId().withMessage('Invalid log ID format.');
 
 
-module.exports = router;
+// --- Rute untuk Log Emosi ---
+
+// POST /api/emotions/log - Menyimpan log deteksi emosi baru
+// Endpoint ini sekarang dilindungi, pengguna harus login.
+// Jika ingin mengizinkan log anonim melalui API key, perlu logika tambahan atau endpoint berbeda.
+router.post('/log', protect, logEmotionValidationRules, logEmotionDetection);
+
+// GET /api/emotions/logs - Mendapatkan semua log emosi (dengan paginasi)
+// Dilindungi, dan otorisasi (admin atau pemilik) ada di controller.
+router.get('/logs', protect, getAllEmotionLogs);
+
+// GET /api/emotions/logs/:id - Mendapatkan detail satu log emosi
+// Dilindungi, dan otorisasi (admin atau pemilik) ada di controller.
+router.get('/logs/:id', protect, idParamValidationRule, getEmotionLogById);
+
+// PATCH /api/emotions/logs/:id/feedback - Memperbarui feedback pengguna pada log
+// Dilindungi, dan otorisasi (admin atau pemilik) ada di controller.
+router.patch('/logs/:id/feedback', protect, idParamValidationRule, updateFeedbackValidationRules, updateEmotionLogFeedback);
+
+
+export default router;
